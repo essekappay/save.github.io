@@ -95,15 +95,27 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     $(document).ready(function () {
+      // Recupera i dati da localStorage se presenti
+      var productCodeReference = localStorage.getItem("productCodeReference") || "2140010";
+      var pricePerKilogram = parseFloat(localStorage.getItem("pricePerKilogram")) || 1.69;
+      var weightWasteRef = parseFloat(localStorage.getItem("weightWasteRef")) || 0.008;
+      var prodRef = localStorage.getItem("prodRef") || "mele golden";
+  
+      // Aggiorna i campi del modulo con i dati preesistenti
+      $("#productCodeReference").val(productCodeReference);
+      $("#pricePerKilogram").val(pricePerKilogram);
+      $("#weightwasteref").val(weightWasteRef);
+      $("#productRef").val(prodRef);
+  
       $("#calculateBarcode").click(function () {
-        var productCodeReference = $("#productCodeReference").val();
-        var pricePerKilogram = parseFloat($("#pricePerKilogram").val());
+        productCodeReference = $("#productCodeReference").val();
+        pricePerKilogram = parseFloat($("#pricePerKilogram").val());
         var weight = parseFloat($("#weight").val());
         var weightWaste = parseFloat($("#weight-waste").val());
-        var weightWasteRef = parseFloat($("#weightwasteref").val());
-        var productType = $("#productType").val;
-        var prodRef = $("#productRef").val();
-
+        weightWasteRef = parseFloat($("#weightwasteref").val());
+        var productType = $("#productType").val();
+        prodRef = $("#productRef").val();
+  
         if (
           productCodeReference.length === 7 &&
           !isNaN(pricePerKilogram) &&
@@ -113,11 +125,58 @@
         ) {
           var fixedPrefix = productCodeReference;
           var newPrice = (
-            (weight + weightWaste - weightWasteRef) *
-            pricePerKilogram
+            (weight + weightWaste - weightWasteRef) * pricePerKilogram
           ).toFixed(2);
           var productCode = (newPrice * 100).toFixed(0);
           while (productCode.length < 5) {
             productCode = "0" + productCode;
           }
-          var sumOf
+  
+          var sumOfDigits = 0;
+          for (var i = 0; i < productCode.length; i++) {
+            sumOfDigits += parseInt(productCode[i]);
+          }
+  
+          while (sumOfDigits > 9) {
+            sumOfDigits = sumOfDigits
+              .toString()
+              .split("")
+              .reduce(function (total, digit) {
+                return total + parseInt(digit);
+              }, 0);
+          }
+  
+          var lastDigit = sumOfDigits;
+          var EAN13CodeWithoutCheckDigit = fixedPrefix + productCode;
+  
+          // Visualizza i risultati e aggiorna localStorage con i nuovi dati
+          localStorage.setItem("productCodeReference", productCodeReference);
+          localStorage.setItem("pricePerKilogram", pricePerKilogram);
+          localStorage.setItem("weightWasteRef", weightWasteRef);
+          localStorage.setItem("prodRef", prodRef);
+  
+          $("#barcodeResult").html(
+            '<h2 style="text-transform:uppercase;text-align:center;">' +
+              productType +
+              '</h2>' +
+              '<div style="text-align: center;">' +
+              '<img alt="Barcode Generator TEC-IT" style="max-width: 450px; width: 100%;" ' +
+              'src="https://barcode.tec-it.com/barcode.ashx?data=' +
+              EAN13CodeWithoutCheckDigit +
+              '&code=EAN13&translate-esc=on"/>' +
+              '</div>' +
+              '<p></p>' +
+              '<h2 style="text-align:center;"><b>  IMPORTO  </b><b style="font-size:25px;">' +
+              newPrice +
+              ' &euro;</b></h2>' +
+              '<p></p>' +
+              '<p></p>' +
+              '<p></p>'
+          );
+        } else {
+          alert("Valori inseriti non validi.");
+        }
+      });
+    });
+  </script>
+  
