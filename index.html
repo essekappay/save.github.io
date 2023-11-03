@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="600">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-size: 14px;
+      background-color: #8080801c;
+    }
+
+    .container {
+      margin: auto;
+    }
+
+    .settaggi, .dati-prod {
+      padding: 5px;
+      max-width: 450px;
+      margin: auto;
+    }
+
+    .settaggi {
+      background-color: #009fff12;
+    }
+
+    .dati-prod {
+      background-color: #02a1ee;
+    }
+
+    input {
+      width: 97%;
+      text-align: right;
+    }
+
+    @media (max-width: 450px) {
+      body {
+        background-color: #009fff12;
+        max-width: 100%;
+      }
+
+      .container {
+        max-width: 100%;
+      }
+
+      .settaggi, .dati-prod {
+        width: 100%;
+        border: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p></p>
+    <h1 style="text-align: center; width: 100%;">FREE SHOPPING</h1>
+    <p></p>
+    <div class="settaggi">
+      <h3 style="text-align: center; width: 100%;">SETTAGGI INIZIALI :</h3>
+      <p></p>
+      <form id="barcodeForm">
+        <label for="productCodeReference"><b>Prime 7 cifre BarCode:</b></label><br>
+        <input type="text" id="productCodeReference" required>
+        <br><br>
+        <label for="weightwasteref"><b>Tara :</b></label><br>
+        <input type="text" id="weightwasteref" required>
+        <br><br>
+        <label for="pricePerKilogram"><b>Prezzo al chilogrammo:</b></label><br>
+        <input type="text" id="pricePerKilogram" required>
+        <br><br>
+        <label for="productRef"><b>Prodotto di riferimento:</b></label><br>
+        <input type="text" id="productRef" required>
+        <br><br>
+      </form>
+    </div>
+    <div class="dati-prod">
+      <p></p>
+      <h3 style="text-align: center; width: 100%;">DATI PRODOTTO :</h3>
+      <p></p>
+      <label for="weight"><b>Peso dell'articolo (in kg):</b></label><br>
+      <input type="text" id="weight" required>
+      <br><br>
+      <label for="weight-waste"><b>Tara dell'articolo (in kg):</b></label><br>
+      <input type="text" id="weight-waste" required>
+      <br><br>
+      <label for="productType"><b>Tipologia del prodotto:</b></label><br>
+      <input type="text" id="productType" required>
+      <br><br>
+      <button id="calculateBarcode" style="width: 100%; max-width: 450px; background-color: green;">
+        <b>GENERA CODICE A BARRE</b>
+      </button>
+      <br><br>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $("#calculateBarcode").click(function () {
+        var productCodeReference = $("#productCodeReference").val();
+        var pricePerKilogram = parseFloat($("#pricePerKilogram").val());
+        var weight = parseFloat($("#weight").val());
+        var weightWaste = parseFloat($("#weight-waste").val());
+        var weightWasteRef = parseFloat($("#weightwasteref").val());
+        var productType = $("#productType").val;
+        var prodRef = $("#productRef").val();
+
+        if (
+          productCodeReference.length === 7 &&
+          !isNaN(pricePerKilogram) &&
+          !isNaN(weight) &&
+          !isNaN(weightWaste) &&
+          !isNaN(weightWasteRef)
+        ) {
+          var fixedPrefix = productCodeReference;
+          var newPrice = (
+            (weight + weightWaste - weightWasteRef) *
+            pricePerKilogram
+          ).toFixed(2);
+          var productCode = (newPrice * 100).toFixed(0);
+          while (productCode.length < 5) {
+            productCode = "0" + productCode;
+          }
+          var sumOf
